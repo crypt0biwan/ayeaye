@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Aye Aye Coin on-chain info" />
+        <title>Aye Aye Coin on-chain info</title>
+
+        <link href="css/bootstrap.min.css" rel="stylesheet" />
+        
+        <script src="js/ethers-5.6.umd.min.js"></script>
+    </head>
+    <body>
+        <div class="container-fluid bg-light text-dark py-5" data-bs-theme="light">
+            <div class="container">
+                <h2>Aye Aye Coin on-chain info</h2>
+                
+                <p>
+                    Welcome to the on-chain info page.<br />
+                    Through this web page you can get the unwrapped Aye Aye coin balance of a specified ETH address.
+                </p>
+            </div>
+        </div>
+
+        <div class="container-fluid py-5">
+            <div class="container">
+                <h3>Address</h3>
+
+                <div class="mb-3">
+                  <label for="address" class="form-label">Ethereum address</label>
+                  <input type="text" class="form-control" id="address" placeholder="0x..">
+                </div>
+
+                <svg class="mt-5 d-none" id="loader" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; display: block;" width="300px" height="300px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+                    <rect x="19" y="19" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0s" calcMode="discrete"></animate>
+                    </rect><rect x="40" y="19" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0.125s" calcMode="discrete"></animate>
+                    </rect><rect x="61" y="19" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0.25s" calcMode="discrete"></animate>
+                    </rect><rect x="19" y="40" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0.875s" calcMode="discrete"></animate>
+                    </rect><rect x="61" y="40" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0.375s" calcMode="discrete"></animate>
+                    </rect><rect x="19" y="61" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0.75s" calcMode="discrete"></animate>
+                    </rect><rect x="40" y="61" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0.625s" calcMode="discrete"></animate>
+                    </rect><rect x="61" y="61" width="20" height="20" fill="#198754">
+                      <animate attributeName="fill" values="#6ea8fe;#198754;#198754" keyTimes="0;0.125;1" dur="1s" repeatCount="indefinite" begin="0.5s" calcMode="discrete"></animate>
+                    </rect>
+                </svg>
+
+                <div id="info" class="mt-5 d-none">
+                    <h4 class="mt-5">On-chain info (taken directly from the contract)</h4>
+
+                    <div id="addressInfo"></div>
+                </div>
+
+                <div id="error" class="mt-5 d-none">
+                    Something went wrong, see the browser console for more info.
+                </div>
+            </div>  
+        </div>  
+
+        <script src="js/index.js"></script>
+    </body>
+</html>
