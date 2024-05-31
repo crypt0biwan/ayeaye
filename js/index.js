@@ -232,12 +232,6 @@ function checkAddress(address) {
     if(params?.address !== address) {
         window.history.pushState('', '', `?address=${address}`)
     }
-    
-    getContractInfo(address)
-}
-
-addressInput.addEventListener('change', async function(e) {
-    e.preventDefault();
 
     infoTableBody.innerHTML = ''
     txInfoTableBody.innerHTML = ''
@@ -246,6 +240,12 @@ addressInput.addEventListener('change', async function(e) {
     error.classList.add('d-none')
     info.classList.add('d-none')
     txinfo.classList.add('d-none')
+    
+    getContractInfo(address)
+}
+
+addressInput.addEventListener('change', async function(e) {
+    e.preventDefault();
 
     checkAddress(e.target.value)
 })
