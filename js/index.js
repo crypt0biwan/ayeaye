@@ -133,6 +133,10 @@ const known_addresses = [
     {
         address: '0x30ae41d5f9988d359c733232c6c693c0e645c77e',
         label: 'Wrapper'
+    },
+    {
+        address: '0xcd063b3081ea55535e5b60a21eff7f14e785a877',
+        label: 'AyeAye Deployer'
     }
 ]
 
