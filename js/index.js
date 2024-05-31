@@ -128,7 +128,7 @@ const known_addresses = [
     },
     {
         address: '0x3eddc7ebc7db94f54b72d8ed1f42ce6a527305bb',
-        label: 'Faucet'
+        label: 'AyeAye OG contract'
     },
     {
         address: '0x30ae41d5f9988d359c733232c6c693c0e645c77e',
