@@ -198,8 +198,8 @@ async function getContractInfo(address) {
                     <tr>
                         <td class="text-nowrap">${formatValue(blockNumber, 0)}</td>
                         <td class="text-nowrap">${transactionIndex}</td>
-                        <td class="text-nowrap">${known_sender ? known_sender.label : sender}</td>
-                        <td class="text-nowrap">➡️ ${known_receiver ? known_receiver.label : receiver}</td>
+                        <td class="text-nowrap"><a href="?address=${sender}">${known_sender ? known_sender.label : sender}</a></td>
+                        <td class="text-nowrap">➡️ <a href="?address=${receiver}">${known_receiver ? known_receiver.label : receiver}</a></td>
                         <td class="text-nowrap">${formatValue(parseInt(amount, 10), 0)}</td>
                         <td class="text-nowrap"><a target="_blank" href="https://etherscan.io/tx/${transactionHash}">${transactionHash}</a></td>
                     </tr>
