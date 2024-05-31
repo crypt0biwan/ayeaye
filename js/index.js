@@ -1,4 +1,10 @@
-const { ethereum } = window;
+let ethereum_instance
+
+if(!ethereum && window.ethereum) {
+    ethereum_instance = window.ethereum
+} else {
+    ethereum_instance = ethereum
+}
 
 // OG 2015 Aye Aye
 const abi = [
@@ -94,8 +100,8 @@ let provider = false
 let contract = false
 let wrapperContract = false
 
-if (ethereum) {
-    provider = new ethers.providers.Web3Provider(ethereum)
+if (ethereum_instance) {
+    provider = new ethers.providers.Web3Provider(ethereum_instance)
 }
 
 if (!provider) {
