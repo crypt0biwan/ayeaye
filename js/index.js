@@ -1,7 +1,89 @@
 const { ethereum } = window;
 
 // OG 2015 Aye Aye
-const abi = [{"constant":true,"inputs":[{"name":"_param1","type":"address"}],"name":"coinBalanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]
+const abi = [
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "_to",
+                "type": "address"
+            },
+            {
+                "name": "_value",
+                "type": "uint256"
+            }
+        ],
+        "name": "sendCoin",
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "coinBalance",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "_param1",
+                "type": "address"
+            }
+        ],
+        "name": "coinBalanceOf",
+        "outputs": [
+            {
+                "name": "balance",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+        ],
+        "name": "CoinTransfer",
+        "type": "event"
+    }
+]
 const contractAddress = '0x3eddc7ebc7db94f54b72d8ed1f42ce6a527305bb'
 
 // Wrapped Aye Aye (WAAC)
@@ -24,8 +106,29 @@ if (!provider) {
 const addressInput = document.querySelector('#address')
 const loader = document.querySelector('#loader')
 const info = document.querySelector('#info')
+const txinfo = document.querySelector('#txinfo')
 const error = document.querySelector('#error')
 const infoTableBody = document.querySelector('#info-table tbody')
+const txInfoTableBody = document.querySelector('#txinfo-table tbody')
+
+const known_addresses = [
+    {
+        address: '0x299f9496781d6a469c838abd7dc7bb0351c54532',
+        label: 'ClaimAyeAye contract'
+    },
+    {
+        address: '0x8fa4bfaafb319a3e2359398b1cad54ab5cf84414',
+        label: 'AyeAyeGet contract'
+    },
+    {
+        address: '0x3eddc7ebc7db94f54b72d8ed1f42ce6a527305bb',
+        label: 'Faucet'
+    },
+    {
+        address: '0x30ae41d5f9988d359c733232c6c693c0e645c77e',
+        label: 'Wrapper'
+    }
+]
 
 const formatValue = (value, decimals = 2, style = 'decimal') =>
 	new Intl.NumberFormat('en-US', {
@@ -37,6 +140,8 @@ const formatValue = (value, decimals = 2, style = 'decimal') =>
 
 async function getContractInfo(address) {
     try {
+        console.log(`getContractInfo(${address})`)
+
         const balance = await contract.coinBalanceOf(address)
         const wrappedBalance = await wrapperContract.balanceOf(address)
 
@@ -48,36 +153,108 @@ async function getContractInfo(address) {
             <tr><td><b>Total</b></td><td><b>${formatValue(parseInt(balance) + parseInt(wrappedBalance), 0)}</b></td></tr>
         `
         
+        const eventAbi = [
+            "event CoinTransfer(address indexed sender, address indexed receiver, uint indexed amount)"
+        ]
+
+        const eventContract = await new ethers.Contract(contractAddress, eventAbi, provider)
+        const latestTransactionBlock = txs_archive[txs_archive.length-1].blockNumber
+        const blockNumberFrom = latestTransactionBlock + 1
+        const blockNumberTo = await provider.getBlockNumber()
+
+        console.log(`Getting txs from block ${blockNumberFrom} to ${blockNumberTo}`)
+        
+        const txs = await eventContract.queryFilter("CoinTransfer", blockNumberFrom, blockNumberTo)
+        
+        let tableHTML = ''
+        
+        const all_txs = [...txs_archive, ...txs]
+        let show_txs = false
+        
+        all_txs.reverse().forEach(tx => {
+            const { data, transactionHash, blockNumber, transactionIndex } = tx
+            const [sender, receiver, amount] = ethers.utils.defaultAbiCoder.decode(
+                ['address', 'address', 'uint256'],
+                data
+            )
+                
+            if(sender.toLowerCase() === address.toLowerCase() || receiver.toLowerCase() === address.toLowerCase()) {
+                const known_sender = known_addresses.find(a => a.address === sender.toLowerCase())
+                const known_receiver = known_addresses.find(a => a.address === receiver.toLowerCase())
+
+                show_txs = true
+
+                tableHTML += `
+                    <tr>
+                        <td class="text-nowrap">${formatValue(blockNumber, 0)}</td>
+                        <td class="text-nowrap">${transactionIndex}</td>
+                        <td class="text-nowrap">${known_sender ? known_sender.label : sender}</td>
+                        <td class="text-nowrap">➡️ ${known_receiver ? known_receiver.label : receiver}</td>
+                        <td class="text-nowrap">${formatValue(parseInt(amount, 10), 0)}</td>
+                        <td class="text-nowrap"><a target="_blank" href="https://etherscan.io/tx/${transactionHash}">${transactionHash}</a></td>
+                    </tr>
+                `
+            }
+        })
+
+        txInfoTableBody.innerHTML = tableHTML
+
         loader.classList.add('d-none')
         info.classList.remove('d-none')
+
+        if(show_txs) {
+            txinfo.classList.remove('d-none')
+        }
     } catch(e) {
         console.error(e)
         loader.classList.add('d-none')
         info.classList.add('d-none')
+        txinfo.classList.add('d-none')
         error.classList.remove('d-none')
     }
+}
+
+const params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+})
+
+function checkAddress(address) {
+    if(params?.address !== address) {
+        window.history.pushState('', '', `?address=${address}`)
+    }
+    
+    getContractInfo(address)
 }
 
 addressInput.addEventListener('change', async function(e) {
     e.preventDefault();
 
     infoTableBody.innerHTML = ''
+    txInfoTableBody.innerHTML = ''
 
     loader.classList.remove('d-none')
     error.classList.add('d-none')
     info.classList.add('d-none')
+    txinfo.classList.add('d-none')
 
-    getContractInfo(e.target.value)
+    checkAddress(e.target.value)
 })
 
 async function init() {
     try {
         contract = await new ethers.Contract(contractAddress, abi, provider)
         wrapperContract = await new ethers.Contract(wrapperContractAddress, wrapperAbi, provider)
+
+        if(params?.address) {
+            document.querySelector('#address').value = params.address
+            
+            checkAddress(params.address)
+        }
     } catch(e) {
         console.error(e)
         loader.classList.add('d-none')
         info.classList.add('d-none')
+        txinfo.classList.add('d-none')
         error.classList.remove('d-none')
     }
 }
